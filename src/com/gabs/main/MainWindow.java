@@ -11,6 +11,9 @@ import javax.swing.JLabel;
 import javax.swing.BoxLayout;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
+import java.awt.Image;
+import java.awt.Toolkit;
+
 import javax.swing.JTextField;
 import javax.swing.SpringLayout;
 import javax.swing.Box;
@@ -20,20 +23,51 @@ import javax.swing.JList;
 import javax.swing.JSeparator;
 import javax.swing.SwingConstants;
 import java.awt.Component;
+import javax.swing.JComboBox;
+import javax.swing.JFileChooser;
+import javax.swing.border.SoftBevelBorder;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.border.BevelBorder;
+import javax.swing.JButton;
+import java.awt.event.ActionListener;
+import java.io.File;
+import java.awt.event.ActionEvent;
+import javax.swing.ImageIcon;
+import com.gabs.sql.Conexao;
 
 public class MainWindow extends JFrame {
 
 	private JPanel contentPane;
 	private JTextField textField;
+	private JTextField textField_9;
+	private JTextField textField_10;
+	private JTextField textField_11;
 	private JTextField textField_1;
 	private JTextField textField_2;
 	private JTextField textField_3;
 	private JTextField textField_4;
 	private JTextField textField_5;
-	private JTextField textField_6;
-	private JTextField textField_7;
-	private JTextField textField_8;
-
+	
+	JLabel Lbl_image = new JLabel("");
+	public static Conexao sql = new Conexao();
+	String ImgPath = null;
+	
+	//System to size image for the container
+	public ImageIcon resizeImage(String imagePath, byte[] pic) {
+		ImageIcon myImage = null;
+		
+		if(imagePath != null) {
+			myImage = new ImageIcon(imagePath);
+		}else {
+			myImage = new ImageIcon(pic);
+		}
+		
+		Image img = myImage.getImage();
+		Image img2 = img.getScaledInstance(Lbl_image.getWidth(), Lbl_image.getHeight(), Image.SCALE_SMOOTH);
+		ImageIcon image = new ImageIcon(img2);
+		return image;
+	}
+	
 	/**
 	 * Launch the application.
 	 */
@@ -41,7 +75,10 @@ public class MainWindow extends JFrame {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
+					sql.connect();
 					MainWindow frame = new MainWindow();
+					frame.setTitle("Valorant Pistols");
+					frame.setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/com/gabs/icons/icon.png")));
 					frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -63,142 +100,234 @@ public class MainWindow extends JFrame {
 		setContentPane(contentPane);
 		contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.X_AXIS));
 		
+		
 		JPanel panel = new JPanel();
 		panel.setBackground(Color.DARK_GRAY);
 		contentPane.add(panel);
 		panel.setLayout(null);
 		
-		JLabel title = new JLabel("Pistolas");
-		title.setFont(new Font("VALORANT", Font.PLAIN, 35));
-		title.setForeground(Color.WHITE);
-		title.setBounds(7, 2, 178, 62);
-		panel.add(title);
-		
-		textField_1 = new JTextField();
-		textField_1.setBackground(Color.GRAY);
-		textField_1.setForeground(Color.LIGHT_GRAY);
-		textField_1.setColumns(10);
-		textField_1.setBounds(577, 57, 228, 32);
-		panel.add(textField_1);
-		
-		textField_2 = new JTextField();
-		textField_2.setBackground(Color.GRAY);
-		textField_2.setForeground(Color.LIGHT_GRAY);
-		textField_2.setColumns(10);
-		textField_2.setBounds(577, 107, 228, 32);
-		panel.add(textField_2);
-		
-		textField_3 = new JTextField();
-		textField_3.setBackground(Color.GRAY);
-		textField_3.setForeground(Color.LIGHT_GRAY);
-		textField_3.setColumns(10);
-		textField_3.setBounds(679, 157, 126, 32);
-		panel.add(textField_3);
-		
-		textField_4 = new JTextField();
-		textField_4.setBackground(Color.GRAY);
-		textField_4.setForeground(Color.LIGHT_GRAY);
-		textField_4.setColumns(10);
-		textField_4.setBounds(718, 203, 87, 32);
-		panel.add(textField_4);
-		
-		textField_5 = new JTextField();
-		textField_5.setBackground(Color.GRAY);
-		textField_5.setForeground(Color.LIGHT_GRAY);
-		textField_5.setColumns(10);
-		textField_5.setBounds(743, 251, 61, 32);
-		panel.add(textField_5);
-		
-		textField_6 = new JTextField();
-		textField_6.setBackground(Color.GRAY);
-		textField_6.setForeground(Color.LIGHT_GRAY);
-		textField_6.setColumns(10);
-		textField_6.setBounds(604, 305, 201, 32);
-		panel.add(textField_6);
-		
-		textField_7 = new JTextField();
-		textField_7.setBackground(Color.GRAY);
-		textField_7.setForeground(Color.LIGHT_GRAY);
-		textField_7.setColumns(10);
-		textField_7.setBounds(587, 353, 218, 32);
-		panel.add(textField_7);
-		
-		textField_8 = new JTextField();
-		textField_8.setBackground(Color.GRAY);
-		textField_8.setForeground(Color.LIGHT_GRAY);
-		textField_8.setColumns(10);
-		textField_8.setBounds(577, 403, 228, 32);
-		panel.add(textField_8);
-		
-		JLabel lblNewLabel = new JLabel("New label");
-		lblNewLabel.setBounds(7, 200, 59, 235);
-		panel.add(lblNewLabel);
-		
-		JSeparator separator = new JSeparator();
-		separator.setOrientation(SwingConstants.VERTICAL);
-		separator.setBounds(414, 7, 23, 430);
-		panel.add(separator);
-		
-		Box horizontalBox = Box.createHorizontalBox();
-		horizontalBox.setBounds(103, 101, 497, 350);
-		panel.add(horizontalBox);
-		
 		Box verticalBox = Box.createVerticalBox();
-		horizontalBox.add(verticalBox);
+		verticalBox.setBounds(432, 7, 367, 429);
+		panel.add(verticalBox);
 		
-		JLabel lblName = new JLabel("Nome:");
-		verticalBox.add(lblName);
-		lblName.setForeground(Color.WHITE);
-		lblName.setFont(new Font("VALORANT", Font.PLAIN, 30));
-		
-		JLabel lblName_1 = new JLabel("Preco:");
-		verticalBox.add(lblName_1);
-		lblName_1.setForeground(Color.WHITE);
-		lblName_1.setFont(new Font("VALORANT", Font.PLAIN, 30));
-		
-		JLabel lblName_1_1 = new JLabel("Penetracao:");
-		verticalBox.add(lblName_1_1);
-		lblName_1_1.setForeground(Color.WHITE);
-		lblName_1_1.setFont(new Font("VALORANT", Font.PLAIN, 30));
-		
-		JLabel lblName_1_1_1_1 = new JLabel("Balas Reserva:");
-		verticalBox.add(lblName_1_1_1_1);
-		lblName_1_1_1_1.setForeground(Color.WHITE);
-		lblName_1_1_1_1.setFont(new Font("VALORANT", Font.PLAIN, 30));
-		
-		JLabel lblName_1_1_1 = new JLabel("Balas Por Paint:");
-		verticalBox.add(lblName_1_1_1);
-		lblName_1_1_1.setForeground(Color.WHITE);
-		lblName_1_1_1.setFont(new Font("VALORANT", Font.PLAIN, 30));
-		
-		JLabel lblName_1_1_1_1_1 = new JLabel("cabeca:");
-		verticalBox.add(lblName_1_1_1_1_1);
-		lblName_1_1_1_1_1.setForeground(Color.WHITE);
-		lblName_1_1_1_1_1.setFont(new Font("VALORANT", Font.PLAIN, 30));
-		
-		JLabel lblName_1_1_1_1_1_1 = new JLabel("corpo:");
-		verticalBox.add(lblName_1_1_1_1_1_1);
-		lblName_1_1_1_1_1_1.setForeground(Color.WHITE);
-		lblName_1_1_1_1_1_1.setFont(new Font("VALORANT", Font.PLAIN, 30));
-		
-		JLabel lblName_1_1_1_1_1_1_1 = new JLabel("perna:");
-		verticalBox.add(lblName_1_1_1_1_1_1_1);
-		lblName_1_1_1_1_1_1_1.setForeground(Color.WHITE);
-		lblName_1_1_1_1_1_1_1.setFont(new Font("VALORANT", Font.PLAIN, 30));
-		
-		Box horizontalBox_1 = Box.createHorizontalBox();
-		horizontalBox_1.setBounds(52, 59, 336, 32);
-		panel.add(horizontalBox_1);
+		Box labelID = Box.createHorizontalBox();
+		labelID.setBorder(new SoftBevelBorder(BevelBorder.RAISED, null, null, null, null));
+		verticalBox.add(labelID);
 		
 		JLabel id = new JLabel("Id: ");
-		horizontalBox_1.add(id);
+		labelID.add(id);
 		id.setForeground(Color.WHITE);
 		id.setFont(new Font("VALORANT", Font.PLAIN, 30));
 		
 		textField = new JTextField();
-		horizontalBox_1.add(textField);
+		textField.setHorizontalAlignment(SwingConstants.CENTER);
+		textField.setFont(new Font("Tahoma", Font.PLAIN, 18));
+		textField.setEditable(false);
+		labelID.add(textField);
 		textField.setBackground(Color.GRAY);
-		textField.setForeground(Color.LIGHT_GRAY);
+		textField.setForeground(Color.WHITE);
 		textField.setColumns(10);
+		
+		Box labelNome = Box.createHorizontalBox();
+		labelNome.setBorder(new SoftBevelBorder(BevelBorder.RAISED, null, null, null, null));
+		verticalBox.add(labelNome);
+		
+		JLabel lblName = new JLabel("Nome: ");
+		labelNome.add(lblName);
+		lblName.setForeground(Color.WHITE);
+		lblName.setFont(new Font("VALORANT", Font.PLAIN, 30));
+		
+		textField_9 = new JTextField();
+		textField_9.setHorizontalAlignment(SwingConstants.CENTER);
+		textField_9.setFont(new Font("Tahoma", Font.PLAIN, 18));
+		textField_9.setForeground(Color.WHITE);
+		textField_9.setColumns(10);
+		textField_9.setBackground(Color.GRAY);
+		labelNome.add(textField_9);
+		
+		Box horizontalBox_1_2 = Box.createHorizontalBox();
+		horizontalBox_1_2.setBorder(new SoftBevelBorder(BevelBorder.RAISED, null, null, null, null));
+		verticalBox.add(horizontalBox_1_2);
+		
+		JLabel lblName_1 = new JLabel("Preco: ");
+		horizontalBox_1_2.add(lblName_1);
+		lblName_1.setForeground(Color.WHITE);
+		lblName_1.setFont(new Font("VALORANT", Font.PLAIN, 30));
+		
+		textField_10 = new JTextField();
+		textField_10.setHorizontalAlignment(SwingConstants.CENTER);
+		textField_10.setFont(new Font("Tahoma", Font.PLAIN, 18));
+		textField_10.setForeground(Color.WHITE);
+		textField_10.setColumns(10);
+		textField_10.setBackground(Color.GRAY);
+		horizontalBox_1_2.add(textField_10);
+		
+		Box labelBalasPorPaint = Box.createHorizontalBox();
+		labelBalasPorPaint.setBorder(new SoftBevelBorder(BevelBorder.RAISED, null, null, null, null));
+		verticalBox.add(labelBalasPorPaint);
+		
+		JLabel lblName_1_1_1 = new JLabel("Balas Por Pente: ");
+		labelBalasPorPaint.add(lblName_1_1_1);
+		lblName_1_1_1.setForeground(Color.WHITE);
+		lblName_1_1_1.setFont(new Font("VALORANT", Font.PLAIN, 30));
+		
+		textField_2 = new JTextField();
+		textField_2.setHorizontalAlignment(SwingConstants.CENTER);
+		textField_2.setFont(new Font("Tahoma", Font.PLAIN, 18));
+		textField_2.setForeground(Color.WHITE);
+		textField_2.setColumns(10);
+		textField_2.setBackground(Color.GRAY);
+		labelBalasPorPaint.add(textField_2);
+		
+		Box horizontalBox_1_2_2 = Box.createHorizontalBox();
+		horizontalBox_1_2_2.setBorder(new SoftBevelBorder(BevelBorder.RAISED, null, null, null, null));
+		verticalBox.add(horizontalBox_1_2_2);
+		
+		JLabel lblName_1_1_1_1 = new JLabel("Balas Reserva: ");
+		horizontalBox_1_2_2.add(lblName_1_1_1_1);
+		lblName_1_1_1_1.setForeground(Color.WHITE);
+		lblName_1_1_1_1.setFont(new Font("VALORANT", Font.PLAIN, 30));
+		
+		textField_1 = new JTextField();
+		textField_1.setHorizontalAlignment(SwingConstants.CENTER);
+		textField_1.setFont(new Font("Tahoma", Font.PLAIN, 18));
+		textField_1.setForeground(Color.WHITE);
+		textField_1.setColumns(10);
+		textField_1.setBackground(Color.GRAY);
+		horizontalBox_1_2_2.add(textField_1);
+		
+		Box horizontalBox_1_2_1 = Box.createHorizontalBox();
+		horizontalBox_1_2_1.setBorder(new SoftBevelBorder(BevelBorder.RAISED, null, null, null, null));
+		verticalBox.add(horizontalBox_1_2_1);
+		
+		JLabel lblName_1_1 = new JLabel("Penetracao: ");
+		horizontalBox_1_2_1.add(lblName_1_1);
+		lblName_1_1.setForeground(Color.WHITE);
+		lblName_1_1.setFont(new Font("VALORANT", Font.PLAIN, 30));
+		
+		textField_11 = new JTextField();
+		textField_11.setHorizontalAlignment(SwingConstants.CENTER);
+		textField_11.setFont(new Font("Tahoma", Font.PLAIN, 18));
+		textField_11.setForeground(Color.WHITE);
+		textField_11.setColumns(10);
+		textField_11.setBackground(Color.GRAY);
+		horizontalBox_1_2_1.add(textField_11);
+		
+		Box horizontalBox_1_2_4 = Box.createHorizontalBox();
+		horizontalBox_1_2_4.setBorder(new SoftBevelBorder(BevelBorder.RAISED, null, null, null, null));
+		verticalBox.add(horizontalBox_1_2_4);
+		
+		JLabel lblName_1_1_1_1_1 = new JLabel("cabeca: ");
+		horizontalBox_1_2_4.add(lblName_1_1_1_1_1);
+		lblName_1_1_1_1_1.setForeground(Color.WHITE);
+		lblName_1_1_1_1_1.setFont(new Font("VALORANT", Font.PLAIN, 30));
+		
+		textField_3 = new JTextField();
+		textField_3.setHorizontalAlignment(SwingConstants.CENTER);
+		textField_3.setFont(new Font("Tahoma", Font.PLAIN, 18));
+		textField_3.setForeground(Color.WHITE);
+		textField_3.setColumns(10);
+		textField_3.setBackground(Color.GRAY);
+		horizontalBox_1_2_4.add(textField_3);
+		
+		Box horizontalBox_1_2_5 = Box.createHorizontalBox();
+		horizontalBox_1_2_5.setBorder(new SoftBevelBorder(BevelBorder.RAISED, null, null, null, null));
+		verticalBox.add(horizontalBox_1_2_5);
+		
+		JLabel lblName_1_1_1_1_1_1 = new JLabel("corpo: ");
+		horizontalBox_1_2_5.add(lblName_1_1_1_1_1_1);
+		lblName_1_1_1_1_1_1.setForeground(Color.WHITE);
+		lblName_1_1_1_1_1_1.setFont(new Font("VALORANT", Font.PLAIN, 30));
+		
+		textField_4 = new JTextField();
+		textField_4.setHorizontalAlignment(SwingConstants.CENTER);
+		textField_4.setFont(new Font("Tahoma", Font.PLAIN, 18));
+		textField_4.setForeground(Color.WHITE);
+		textField_4.setColumns(10);
+		textField_4.setBackground(Color.GRAY);
+		horizontalBox_1_2_5.add(textField_4);
+		
+		Box horizontalBox_1_3 = Box.createHorizontalBox();
+		horizontalBox_1_3.setBorder(new SoftBevelBorder(BevelBorder.RAISED, null, null, null, null));
+		verticalBox.add(horizontalBox_1_3);
+		
+		JLabel lblName_1_1_1_1_1_1_1 = new JLabel("perna: ");
+		horizontalBox_1_3.add(lblName_1_1_1_1_1_1_1);
+		lblName_1_1_1_1_1_1_1.setForeground(Color.WHITE);
+		lblName_1_1_1_1_1_1_1.setFont(new Font("VALORANT", Font.PLAIN, 30));
+		
+		textField_5 = new JTextField();
+		textField_5.setHorizontalAlignment(SwingConstants.CENTER);
+		textField_5.setFont(new Font("Tahoma", Font.PLAIN, 18));
+		textField_5.setForeground(Color.WHITE);
+		textField_5.setColumns(10);
+		textField_5.setBackground(Color.GRAY);
+		horizontalBox_1_3.add(textField_5);
+		
+		JLabel title = new JLabel("Pistolas");
+		title.setBounds(7, 11, 167, 40);
+		panel.add(title);
+		title.setFont(new Font("VALORANT", Font.PLAIN, 35));
+		title.setForeground(Color.WHITE);
+		
+		JComboBox comboBox = new JComboBox();
+		comboBox.setBounds(8, 57, 395, 34);
+		panel.add(comboBox);
+		
+
+
+		
+		JButton btnNewButton_1 = new JButton("");
+		btnNewButton_1.setBackground(Color.DARK_GRAY);
+		btnNewButton_1.setIcon(new ImageIcon(MainWindow.class.getResource("/com/gabs/icons/add.png")));
+		btnNewButton_1.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+			}
+		});
+		btnNewButton_1.setBounds(180, 5, 45, 45);
+		panel.add(btnNewButton_1);
+		
+		
+		Lbl_image.setForeground(Color.MAGENTA);
+		Lbl_image.setBackground(Color.MAGENTA);
+		Lbl_image.setBounds(7, 106, 395, 261);
+		panel.add(Lbl_image);
+		
+		JButton btnNewButton_1_1 = new JButton("");
+		btnNewButton_1_1.setIcon(new ImageIcon(MainWindow.class.getResource("/com/gabs/icons/refresh.png")));
+		btnNewButton_1_1.setBackground(Color.DARK_GRAY);
+		btnNewButton_1_1.setBounds(239, 5, 45, 45);
+		panel.add(btnNewButton_1_1);
+		
+		JButton btnNewButton_1_1_1 = new JButton("");
+		btnNewButton_1_1_1.setIcon(new ImageIcon(MainWindow.class.getResource("/com/gabs/icons/delete.png")));
+		btnNewButton_1_1_1.setBackground(Color.DARK_GRAY);
+		btnNewButton_1_1_1.setBounds(298, 5, 45, 45);
+		panel.add(btnNewButton_1_1_1);
+		
+		JButton Btn_Select_Image = new JButton("Escolher Imagem");
+		Btn_Select_Image.setFont(new Font("Tahoma", Font.PLAIN, 18));
+		Btn_Select_Image.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				JFileChooser file = new JFileChooser();
+				file.setCurrentDirectory(new File(System.getProperty("user.home")));
+				
+				FileNameExtensionFilter filter = new FileNameExtensionFilter("*.image", "jpg", "png");
+				file.addChoosableFileFilter(filter);
+				int result = file.showSaveDialog(null);
+				
+				if(result == JFileChooser.APPROVE_OPTION) {
+					File selectedFile = file.getSelectedFile();
+					String path = selectedFile.getAbsolutePath();
+					Lbl_image.setIcon(resizeImage(path, null));
+				}else {
+					System.out.println("Nem um arquivo adicionado!");
+				}
+			}
+		});
+		Btn_Select_Image.setBounds(7, 383, 395, 52);
+		panel.add(Btn_Select_Image);
+		
+		
 	}
 }
