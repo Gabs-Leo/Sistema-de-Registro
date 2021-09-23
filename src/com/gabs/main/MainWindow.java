@@ -20,6 +20,7 @@ import javax.swing.Box;
 import java.awt.Font;
 import javax.swing.JSplitPane;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
 import javax.swing.JSeparator;
 import javax.swing.SwingConstants;
 import java.awt.Component;
@@ -31,6 +32,9 @@ import javax.swing.border.BevelBorder;
 import javax.swing.JButton;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.sql.PreparedStatement;
 import java.awt.event.ActionEvent;
 import javax.swing.ImageIcon;
 import com.gabs.sql.Conexao;
@@ -38,15 +42,15 @@ import com.gabs.sql.Conexao;
 public class MainWindow extends JFrame {
 
 	private JPanel contentPane;
-	private JTextField textField;
-	private JTextField textField_9;
-	private JTextField textField_10;
-	private JTextField textField_11;
-	private JTextField textField_1;
-	private JTextField textField_2;
-	private JTextField textField_3;
-	private JTextField textField_4;
-	private JTextField textField_5;
+	private JTextField text_id;
+	private JTextField text_name;
+	private JTextField text_price;
+	private JTextField text_penetration;
+	private JTextField text_totalBullet;
+	private JTextField text_bulletPP;
+	private JTextField text_head;
+	private JTextField text_body;
+	private JTextField text_legs;
 	
 	JLabel Lbl_image = new JLabel("");
 	public static Conexao sql = new Conexao();
@@ -68,6 +72,30 @@ public class MainWindow extends JFrame {
 		return image;
 	}
 	
+	public boolean checkInputs() {
+		if(text_name.getText() == null
+		|| text_price.getText() == null
+		|| text_bulletPP.getText() == null
+		|| text_totalBullet.getText() == null
+		|| text_penetration.getText() == null
+		|| text_head.getText() == null
+		|| text_body.getText() == null
+		|| text_legs.getText() == null){
+			return false;
+		}else {
+			try {
+				Integer.parseInt(text_price.getText());
+				Integer.parseInt(text_bulletPP.getText());
+				Integer.parseInt(text_totalBullet.getText());
+				Integer.parseInt(text_head.getText());
+				Integer.parseInt(text_body.getText());
+				Integer.parseInt(text_legs.getText());
+				return true;
+			}catch(Exception e) {
+				return false;
+			}
+		}
+	}
 	/**
 	 * Launch the application.
 	 */
@@ -75,7 +103,7 @@ public class MainWindow extends JFrame {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					sql.connect();
+					sql.getConnection();
 					MainWindow frame = new MainWindow();
 					frame.setTitle("Valorant Pistols");
 					frame.setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/com/gabs/icons/icon.png")));
@@ -119,14 +147,14 @@ public class MainWindow extends JFrame {
 		id.setForeground(Color.WHITE);
 		id.setFont(new Font("VALORANT", Font.PLAIN, 30));
 		
-		textField = new JTextField();
-		textField.setHorizontalAlignment(SwingConstants.CENTER);
-		textField.setFont(new Font("Tahoma", Font.PLAIN, 18));
-		textField.setEditable(false);
-		labelID.add(textField);
-		textField.setBackground(Color.GRAY);
-		textField.setForeground(Color.WHITE);
-		textField.setColumns(10);
+		text_id = new JTextField();
+		text_id.setHorizontalAlignment(SwingConstants.CENTER);
+		text_id.setFont(new Font("Tahoma", Font.PLAIN, 18));
+		text_id.setEditable(false);
+		labelID.add(text_id);
+		text_id.setBackground(Color.GRAY);
+		text_id.setForeground(Color.WHITE);
+		text_id.setColumns(10);
 		
 		Box labelNome = Box.createHorizontalBox();
 		labelNome.setBorder(new SoftBevelBorder(BevelBorder.RAISED, null, null, null, null));
@@ -137,13 +165,13 @@ public class MainWindow extends JFrame {
 		lblName.setForeground(Color.WHITE);
 		lblName.setFont(new Font("VALORANT", Font.PLAIN, 30));
 		
-		textField_9 = new JTextField();
-		textField_9.setHorizontalAlignment(SwingConstants.CENTER);
-		textField_9.setFont(new Font("Tahoma", Font.PLAIN, 18));
-		textField_9.setForeground(Color.WHITE);
-		textField_9.setColumns(10);
-		textField_9.setBackground(Color.GRAY);
-		labelNome.add(textField_9);
+		text_name = new JTextField();
+		text_name.setHorizontalAlignment(SwingConstants.CENTER);
+		text_name.setFont(new Font("Tahoma", Font.PLAIN, 18));
+		text_name.setForeground(Color.WHITE);
+		text_name.setColumns(10);
+		text_name.setBackground(Color.GRAY);
+		labelNome.add(text_name);
 		
 		Box horizontalBox_1_2 = Box.createHorizontalBox();
 		horizontalBox_1_2.setBorder(new SoftBevelBorder(BevelBorder.RAISED, null, null, null, null));
@@ -154,13 +182,13 @@ public class MainWindow extends JFrame {
 		lblName_1.setForeground(Color.WHITE);
 		lblName_1.setFont(new Font("VALORANT", Font.PLAIN, 30));
 		
-		textField_10 = new JTextField();
-		textField_10.setHorizontalAlignment(SwingConstants.CENTER);
-		textField_10.setFont(new Font("Tahoma", Font.PLAIN, 18));
-		textField_10.setForeground(Color.WHITE);
-		textField_10.setColumns(10);
-		textField_10.setBackground(Color.GRAY);
-		horizontalBox_1_2.add(textField_10);
+		text_price = new JTextField();
+		text_price.setHorizontalAlignment(SwingConstants.CENTER);
+		text_price.setFont(new Font("Tahoma", Font.PLAIN, 18));
+		text_price.setForeground(Color.WHITE);
+		text_price.setColumns(10);
+		text_price.setBackground(Color.GRAY);
+		horizontalBox_1_2.add(text_price);
 		
 		Box labelBalasPorPaint = Box.createHorizontalBox();
 		labelBalasPorPaint.setBorder(new SoftBevelBorder(BevelBorder.RAISED, null, null, null, null));
@@ -171,13 +199,13 @@ public class MainWindow extends JFrame {
 		lblName_1_1_1.setForeground(Color.WHITE);
 		lblName_1_1_1.setFont(new Font("VALORANT", Font.PLAIN, 30));
 		
-		textField_2 = new JTextField();
-		textField_2.setHorizontalAlignment(SwingConstants.CENTER);
-		textField_2.setFont(new Font("Tahoma", Font.PLAIN, 18));
-		textField_2.setForeground(Color.WHITE);
-		textField_2.setColumns(10);
-		textField_2.setBackground(Color.GRAY);
-		labelBalasPorPaint.add(textField_2);
+		text_bulletPP = new JTextField();
+		text_bulletPP.setHorizontalAlignment(SwingConstants.CENTER);
+		text_bulletPP.setFont(new Font("Tahoma", Font.PLAIN, 18));
+		text_bulletPP.setForeground(Color.WHITE);
+		text_bulletPP.setColumns(10);
+		text_bulletPP.setBackground(Color.GRAY);
+		labelBalasPorPaint.add(text_bulletPP);
 		
 		Box horizontalBox_1_2_2 = Box.createHorizontalBox();
 		horizontalBox_1_2_2.setBorder(new SoftBevelBorder(BevelBorder.RAISED, null, null, null, null));
@@ -188,13 +216,13 @@ public class MainWindow extends JFrame {
 		lblName_1_1_1_1.setForeground(Color.WHITE);
 		lblName_1_1_1_1.setFont(new Font("VALORANT", Font.PLAIN, 30));
 		
-		textField_1 = new JTextField();
-		textField_1.setHorizontalAlignment(SwingConstants.CENTER);
-		textField_1.setFont(new Font("Tahoma", Font.PLAIN, 18));
-		textField_1.setForeground(Color.WHITE);
-		textField_1.setColumns(10);
-		textField_1.setBackground(Color.GRAY);
-		horizontalBox_1_2_2.add(textField_1);
+		text_totalBullet = new JTextField();
+		text_totalBullet.setHorizontalAlignment(SwingConstants.CENTER);
+		text_totalBullet.setFont(new Font("Tahoma", Font.PLAIN, 18));
+		text_totalBullet.setForeground(Color.WHITE);
+		text_totalBullet.setColumns(10);
+		text_totalBullet.setBackground(Color.GRAY);
+		horizontalBox_1_2_2.add(text_totalBullet);
 		
 		Box horizontalBox_1_2_1 = Box.createHorizontalBox();
 		horizontalBox_1_2_1.setBorder(new SoftBevelBorder(BevelBorder.RAISED, null, null, null, null));
@@ -205,13 +233,13 @@ public class MainWindow extends JFrame {
 		lblName_1_1.setForeground(Color.WHITE);
 		lblName_1_1.setFont(new Font("VALORANT", Font.PLAIN, 30));
 		
-		textField_11 = new JTextField();
-		textField_11.setHorizontalAlignment(SwingConstants.CENTER);
-		textField_11.setFont(new Font("Tahoma", Font.PLAIN, 18));
-		textField_11.setForeground(Color.WHITE);
-		textField_11.setColumns(10);
-		textField_11.setBackground(Color.GRAY);
-		horizontalBox_1_2_1.add(textField_11);
+		text_penetration = new JTextField();
+		text_penetration.setHorizontalAlignment(SwingConstants.CENTER);
+		text_penetration.setFont(new Font("Tahoma", Font.PLAIN, 18));
+		text_penetration.setForeground(Color.WHITE);
+		text_penetration.setColumns(10);
+		text_penetration.setBackground(Color.GRAY);
+		horizontalBox_1_2_1.add(text_penetration);
 		
 		Box horizontalBox_1_2_4 = Box.createHorizontalBox();
 		horizontalBox_1_2_4.setBorder(new SoftBevelBorder(BevelBorder.RAISED, null, null, null, null));
@@ -222,13 +250,13 @@ public class MainWindow extends JFrame {
 		lblName_1_1_1_1_1.setForeground(Color.WHITE);
 		lblName_1_1_1_1_1.setFont(new Font("VALORANT", Font.PLAIN, 30));
 		
-		textField_3 = new JTextField();
-		textField_3.setHorizontalAlignment(SwingConstants.CENTER);
-		textField_3.setFont(new Font("Tahoma", Font.PLAIN, 18));
-		textField_3.setForeground(Color.WHITE);
-		textField_3.setColumns(10);
-		textField_3.setBackground(Color.GRAY);
-		horizontalBox_1_2_4.add(textField_3);
+		text_head = new JTextField();
+		text_head.setHorizontalAlignment(SwingConstants.CENTER);
+		text_head.setFont(new Font("Tahoma", Font.PLAIN, 18));
+		text_head.setForeground(Color.WHITE);
+		text_head.setColumns(10);
+		text_head.setBackground(Color.GRAY);
+		horizontalBox_1_2_4.add(text_head);
 		
 		Box horizontalBox_1_2_5 = Box.createHorizontalBox();
 		horizontalBox_1_2_5.setBorder(new SoftBevelBorder(BevelBorder.RAISED, null, null, null, null));
@@ -239,13 +267,13 @@ public class MainWindow extends JFrame {
 		lblName_1_1_1_1_1_1.setForeground(Color.WHITE);
 		lblName_1_1_1_1_1_1.setFont(new Font("VALORANT", Font.PLAIN, 30));
 		
-		textField_4 = new JTextField();
-		textField_4.setHorizontalAlignment(SwingConstants.CENTER);
-		textField_4.setFont(new Font("Tahoma", Font.PLAIN, 18));
-		textField_4.setForeground(Color.WHITE);
-		textField_4.setColumns(10);
-		textField_4.setBackground(Color.GRAY);
-		horizontalBox_1_2_5.add(textField_4);
+		text_body = new JTextField();
+		text_body.setHorizontalAlignment(SwingConstants.CENTER);
+		text_body.setFont(new Font("Tahoma", Font.PLAIN, 18));
+		text_body.setForeground(Color.WHITE);
+		text_body.setColumns(10);
+		text_body.setBackground(Color.GRAY);
+		horizontalBox_1_2_5.add(text_body);
 		
 		Box horizontalBox_1_3 = Box.createHorizontalBox();
 		horizontalBox_1_3.setBorder(new SoftBevelBorder(BevelBorder.RAISED, null, null, null, null));
@@ -256,13 +284,13 @@ public class MainWindow extends JFrame {
 		lblName_1_1_1_1_1_1_1.setForeground(Color.WHITE);
 		lblName_1_1_1_1_1_1_1.setFont(new Font("VALORANT", Font.PLAIN, 30));
 		
-		textField_5 = new JTextField();
-		textField_5.setHorizontalAlignment(SwingConstants.CENTER);
-		textField_5.setFont(new Font("Tahoma", Font.PLAIN, 18));
-		textField_5.setForeground(Color.WHITE);
-		textField_5.setColumns(10);
-		textField_5.setBackground(Color.GRAY);
-		horizontalBox_1_3.add(textField_5);
+		text_legs = new JTextField();
+		text_legs.setHorizontalAlignment(SwingConstants.CENTER);
+		text_legs.setFont(new Font("Tahoma", Font.PLAIN, 18));
+		text_legs.setForeground(Color.WHITE);
+		text_legs.setColumns(10);
+		text_legs.setBackground(Color.GRAY);
+		horizontalBox_1_3.add(text_legs);
 		
 		JLabel title = new JLabel("Pistolas");
 		title.setBounds(7, 11, 167, 40);
@@ -282,6 +310,27 @@ public class MainWindow extends JFrame {
 		btnNewButton_1.setIcon(new ImageIcon(MainWindow.class.getResource("/com/gabs/icons/add.png")));
 		btnNewButton_1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				if(checkInputs() && ImgPath != null) {
+					sql.getConnection();
+					try {
+						PreparedStatement addField = sql.insertObject();
+						addField.setString(1, text_name.getText());
+						addField.setString(2, text_price.getText());
+						addField.setString(3, text_penetration.getText());
+						addField.setString(4, text_bulletPP.getText());
+						addField.setString(5, text_totalBullet.getText());
+						addField.setString(6, text_head.getText());
+						addField.setString(7, text_body.getText());
+						addField.setString(8, text_legs.getText());
+						InputStream img = new FileInputStream(new File(ImgPath));
+						addField.setBlob(9, img);
+						addField.executeUpdate();
+					}catch(Exception exception) {
+						exception.printStackTrace();
+					}
+				}else {
+					JOptionPane.showMessageDialog(null, "Um ou mais campos estão vazios!");
+				}
 			}
 		});
 		btnNewButton_1.setBounds(180, 5, 45, 45);
@@ -320,6 +369,7 @@ public class MainWindow extends JFrame {
 					File selectedFile = file.getSelectedFile();
 					String path = selectedFile.getAbsolutePath();
 					Lbl_image.setIcon(resizeImage(path, null));
+					ImgPath = path;
 				}else {
 					System.out.println("Nem um arquivo adicionado!");
 				}
@@ -330,4 +380,5 @@ public class MainWindow extends JFrame {
 		
 		
 	}
+
 }
