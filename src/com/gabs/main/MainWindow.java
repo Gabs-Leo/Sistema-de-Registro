@@ -33,8 +33,15 @@ import javax.swing.JButton;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
 import java.awt.event.ActionEvent;
 import javax.swing.ImageIcon;
 import com.gabs.sql.Conexao;
@@ -53,10 +60,23 @@ public class MainWindow extends JFrame {
 	private JTextField text_legs;
 	
 	JLabel Lbl_image = new JLabel("");
-	public static Conexao sql = new Conexao();
+	JComboBox comboBox = new JComboBox();
+	Conexao instrucao = new Conexao();
 	String ImgPath = null;
 	
-	//System to size image for the container
+	//Conexão com SQL
+	public Connection getConnection() {
+		try {
+			Connection cn = DriverManager.getConnection("jdbc:mysql://localhost:3306/objects", "root", "");
+			System.out.println("Conectado!");
+			return cn;
+		}catch(SQLException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+	
+	//Fazer Imagem Caber no Container
 	public ImageIcon resizeImage(String imagePath, byte[] pic) {
 		ImageIcon myImage = null;
 		
@@ -72,6 +92,7 @@ public class MainWindow extends JFrame {
 		return image;
 	}
 	
+	//Validação de Inputs
 	public boolean checkInputs() {
 		if(text_name.getText() == null
 		|| text_price.getText() == null
@@ -96,18 +117,57 @@ public class MainWindow extends JFrame {
 			}
 		}
 	}
-	/**
-	 * Launch the application.
-	 */
+	
+	//Instanciando e colocando em array os elementos do banco de dados.
+	public ArrayList<Pistols> getPistolList(){
+		ArrayList<Pistols> pistolList = new ArrayList<Pistols>();
+		Connection cn = getConnection();
+		try {
+			Statement st = cn.createStatement();
+			ResultSet rs = st.executeQuery(instrucao.loadObjects());
+			
+			while(rs.next()) {
+				Pistols pistol = new Pistols(rs.getInt("id"), rs.getString("name"), rs.getInt("price"), rs.getString("wall_penetration"), rs.getInt("balas_por_paint"), rs.getInt("balas_reserva"), rs.getInt("head"), rs.getInt("body"), rs.getInt("leg"), rs.getBytes("image"));
+				pistolList.add(pistol);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return pistolList;
+	}
+	
+	//Preenchendo a tabela com os dados
+	public void mostrarNaComboBox() {
+		ArrayList<Pistols> al = getPistolList();
+		for(int i = 0; i < al.size(); i++) {
+			comboBox.addItem(al.get(i));
+		}
+		
+	}
+	
+	//
+	public void showItem(int index) {
+		text_id.setText(Integer.toString(getPistolList().get(index).getId()));
+		text_name.setText(getPistolList().get(index).getName());
+		text_price.setText(Integer.toString(getPistolList().get(index).getPrice()));
+		text_penetration.setText(getPistolList().get(index).getWallPenetration());
+		text_bulletPP.setText(Integer.toString(getPistolList().get(index).getBalasPorPaint()));
+		text_head.setText(Integer.toString(getPistolList().get(index).getHead()));
+		text_body.setText(Integer.toString(getPistolList().get(index).getBody()));
+		text_legs.setText(Integer.toString(getPistolList().get(index).getLeg()));
+		Lbl_image.setIcon(resizeImage(null, getPistolList().get(index).getImage()));
+	}
+	
+	//PSVM
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					sql.getConnection();
 					MainWindow frame = new MainWindow();
 					frame.setTitle("Valorant Pistols");
 					frame.setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/com/gabs/icons/icon.png")));
 					frame.setVisible(true);
+					
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -115,10 +175,10 @@ public class MainWindow extends JFrame {
 		});
 	}
 
-	/**
-	 * Create the frame.
-	 */
+	//Criação do Frame
 	public MainWindow() {
+		getConnection();
+		mostrarNaComboBox();
 		setBackground(Color.DARK_GRAY);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 840, 493);
@@ -138,6 +198,10 @@ public class MainWindow extends JFrame {
 		verticalBox.setBounds(432, 7, 367, 429);
 		panel.add(verticalBox);
 		
+		
+		comboBox.setBounds(8, 57, 395, 34);
+		panel.add(comboBox);
+		
 		Box labelID = Box.createHorizontalBox();
 		labelID.setBorder(new SoftBevelBorder(BevelBorder.RAISED, null, null, null, null));
 		verticalBox.add(labelID);
@@ -150,7 +214,6 @@ public class MainWindow extends JFrame {
 		text_id = new JTextField();
 		text_id.setHorizontalAlignment(SwingConstants.CENTER);
 		text_id.setFont(new Font("Tahoma", Font.PLAIN, 18));
-		text_id.setEditable(false);
 		labelID.add(text_id);
 		text_id.setBackground(Color.GRAY);
 		text_id.setForeground(Color.WHITE);
@@ -298,22 +361,16 @@ public class MainWindow extends JFrame {
 		title.setFont(new Font("VALORANT", Font.PLAIN, 35));
 		title.setForeground(Color.WHITE);
 		
-		JComboBox comboBox = new JComboBox();
-		comboBox.setBounds(8, 57, 395, 34);
-		panel.add(comboBox);
-		
-
-
-		
-		JButton btnNewButton_1 = new JButton("");
-		btnNewButton_1.setBackground(Color.DARK_GRAY);
-		btnNewButton_1.setIcon(new ImageIcon(MainWindow.class.getResource("/com/gabs/icons/add.png")));
-		btnNewButton_1.addActionListener(new ActionListener() {
+		//Adicionar Item
+		JButton btn_add = new JButton("");
+		btn_add.setBackground(Color.DARK_GRAY);
+		btn_add.setIcon(new ImageIcon(MainWindow.class.getResource("/com/gabs/icons/add.png")));
+		btn_add.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if(checkInputs() && ImgPath != null) {
-					sql.getConnection();
 					try {
-						PreparedStatement addField = sql.insertObject();
+						Connection con = getConnection();
+						PreparedStatement addField = con.prepareStatement(instrucao.insertObject());
 						addField.setString(1, text_name.getText());
 						addField.setString(2, text_price.getText());
 						addField.setString(3, text_penetration.getText());
@@ -325,6 +382,8 @@ public class MainWindow extends JFrame {
 						InputStream img = new FileInputStream(new File(ImgPath));
 						addField.setBlob(9, img);
 						addField.executeUpdate();
+						mostrarNaComboBox();
+						JOptionPane.showMessageDialog(null, "Produto Adicionado!");
 					}catch(Exception exception) {
 						exception.printStackTrace();
 					}
@@ -333,8 +392,8 @@ public class MainWindow extends JFrame {
 				}
 			}
 		});
-		btnNewButton_1.setBounds(180, 5, 45, 45);
-		panel.add(btnNewButton_1);
+		btn_add.setBounds(180, 5, 45, 45);
+		panel.add(btn_add);
 		
 		
 		Lbl_image.setForeground(Color.MAGENTA);
@@ -342,18 +401,94 @@ public class MainWindow extends JFrame {
 		Lbl_image.setBounds(7, 106, 395, 261);
 		panel.add(Lbl_image);
 		
-		JButton btnNewButton_1_1 = new JButton("");
-		btnNewButton_1_1.setIcon(new ImageIcon(MainWindow.class.getResource("/com/gabs/icons/refresh.png")));
-		btnNewButton_1_1.setBackground(Color.DARK_GRAY);
-		btnNewButton_1_1.setBounds(239, 5, 45, 45);
-		panel.add(btnNewButton_1_1);
+		//Atualizar Item
+		JButton btn_refresh = new JButton("");
+		btn_refresh.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if(checkInputs() && text_id.getText() != null) {		
+					PreparedStatement ps = null;
+					Connection cn = getConnection();
+					if(ImgPath == null) {
+						try {
+							ps = cn.prepareStatement(instrucao.updateQuery());
+							ps.setString(1, text_name.getText());
+							ps.setInt(2, Integer.parseInt(text_price.getText()));
+							ps.setString(3, text_penetration.getText());
+							ps.setInt(4, Integer.parseInt(text_bulletPP.getText()));
+							ps.setInt(5, Integer.parseInt(text_totalBullet.getText()));
+							ps.setInt(6, Integer.parseInt(text_head.getText()));
+							ps.setInt(7, Integer.parseInt(text_body.getText()));
+							ps.setInt(8, Integer.parseInt(text_legs.getText()));
+							ps.setInt(9, Integer.parseInt(text_id.getText()));
+							ps.executeUpdate();
+							mostrarNaComboBox();
+						} catch (SQLException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						}
+					}else {
+							try {
+								InputStream img = new FileInputStream(new File(ImgPath));
+								ps = cn.prepareStatement(instrucao.updateQueryImage());
+								ps.setString(1, text_name.getText());
+								ps.setInt(2, Integer.parseInt(text_price.getText()));
+								ps.setString(3, text_penetration.getText());
+								ps.setInt(4, Integer.parseInt(text_bulletPP.getText()));
+								ps.setInt(5, Integer.parseInt(text_totalBullet.getText()));
+								ps.setInt(6, Integer.parseInt(text_head.getText()));
+								ps.setInt(7, Integer.parseInt(text_body.getText()));
+								ps.setInt(8, Integer.parseInt(text_legs.getText()));
+								ps.setBlob(9, img);
+								ps.setInt(10, Integer.parseInt(text_id.getText()));
+								ps.executeUpdate();
+								mostrarNaComboBox();
+							} catch (FileNotFoundException e2) {
+								// TODO Auto-generated catch block
+								e2.printStackTrace();
+							} catch (SQLException e1) {
+								// TODO Auto-generated catch block
+								e1.printStackTrace();
+							}
+					}
+				}else {
+					JOptionPane.showMessageDialog(null, "Um ou mais campos preenchidos incorretamente!");
+				}
+				JOptionPane.showMessageDialog(null, "Alterações Salvas!");
+			}
+		});
+		btn_refresh.setIcon(new ImageIcon(MainWindow.class.getResource("/com/gabs/icons/refresh.png")));
+		btn_refresh.setBackground(Color.DARK_GRAY);
+		btn_refresh.setBounds(239, 5, 45, 45);
+		panel.add(btn_refresh);
 		
+		//Excluir Item
 		JButton btnNewButton_1_1_1 = new JButton("");
+		btnNewButton_1_1_1.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if(!text_id.getText().equals("")) {
+					try {
+						Connection cn = getConnection();
+						PreparedStatement ps = cn.prepareStatement(instrucao.deleteObject());
+						int id = Integer.parseInt(text_id.getText());
+						ps.setInt(1, id);
+						ps.executeUpdate();
+						mostrarNaComboBox();
+						JOptionPane.showMessageDialog(null, "Item deletado com sucesso!");
+					} catch (SQLException e1) {
+						e1.printStackTrace();
+						JOptionPane.showMessageDialog(null, "Falha ao excluir o item.");
+					}
+				}else {
+					JOptionPane.showMessageDialog(null, "Falha ao excluir o item, sem ID para deletar.");
+				}
+			}
+		});
 		btnNewButton_1_1_1.setIcon(new ImageIcon(MainWindow.class.getResource("/com/gabs/icons/delete.png")));
 		btnNewButton_1_1_1.setBackground(Color.DARK_GRAY);
 		btnNewButton_1_1_1.setBounds(298, 5, 45, 45);
 		panel.add(btnNewButton_1_1_1);
 		
+		//Selecionar Imagem
 		JButton Btn_Select_Image = new JButton("Escolher Imagem");
 		Btn_Select_Image.setFont(new Font("Tahoma", Font.PLAIN, 18));
 		Btn_Select_Image.addActionListener(new ActionListener() {

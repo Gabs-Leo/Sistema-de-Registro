@@ -5,8 +5,8 @@ public class Pistols {
 	private String name, wallPenetration;
 	private byte[] image;
 	
-	public Pistols(int id, int price, int balasPorPaint, int balasReserva, int head, int body, int leg, String name,
-			String wallPenetration, byte[] image) {
+	public Pistols(int id, String name, int price, String wallPenetration, int balasPorPaint, int balasReserva, int head, int body, int leg, 
+			 byte[] image) {
 		super();
 		this.id = id;
 		this.price = price;
