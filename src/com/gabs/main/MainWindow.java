@@ -61,6 +61,7 @@ public class MainWindow extends JFrame {
 	
 	JLabel Lbl_image = new JLabel("");
 	JComboBox comboBox = new JComboBox();
+	ArrayList<Pistols> pistolList = new ArrayList<Pistols>();
 	Conexao instrucao = new Conexao();
 	String ImgPath = null;
 	
@@ -120,38 +121,47 @@ public class MainWindow extends JFrame {
 	
 	//Instanciando e colocando em array os elementos do banco de dados.
 	public ArrayList<Pistols> getPistolList(){
-		ArrayList<Pistols> pistolList = new ArrayList<Pistols>();
+		
 		Connection cn = getConnection();
 		try {
 			Statement st = cn.createStatement();
 			ResultSet rs = st.executeQuery(instrucao.loadObjects());
-			
+
 			while(rs.next()) {
 				Pistols pistol = new Pistols(rs.getInt("id"), rs.getString("name"), rs.getInt("price"), rs.getString("wall_penetration"), rs.getInt("balas_por_paint"), rs.getInt("balas_reserva"), rs.getInt("head"), rs.getInt("body"), rs.getInt("leg"), rs.getBytes("image"));
 				pistolList.add(pistol);
 			}
+			
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 		return pistolList;
 	}
 	
-	//Preenchendo a tabela com os dados
 	public void mostrarNaComboBox() {
 		ArrayList<Pistols> al = getPistolList();
-		for(int i = 0; i < al.size(); i++) {
-			comboBox.addItem(al.get(i));
+		comboBox.removeAllItems();
+		for(int i = 0; i< al.size(); i++) {
+			comboBox.addItem(al.get(i).getName());
 		}
 		
+		comboBox.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				System.out.println(comboBox.getSelectedIndex());
+				showItem(comboBox.getSelectedIndex());
+				System.out.println(comboBox.getSelectedIndex());
+			}
+		});
 	}
 	
-	//
+	//Preenchendo a tabela com os dados
 	public void showItem(int index) {
 		text_id.setText(Integer.toString(getPistolList().get(index).getId()));
 		text_name.setText(getPistolList().get(index).getName());
 		text_price.setText(Integer.toString(getPistolList().get(index).getPrice()));
 		text_penetration.setText(getPistolList().get(index).getWallPenetration());
 		text_bulletPP.setText(Integer.toString(getPistolList().get(index).getBalasPorPaint()));
+		text_totalBullet.setText(Integer.toString(getPistolList().get(index).getBalasReserva()));
 		text_head.setText(Integer.toString(getPistolList().get(index).getHead()));
 		text_body.setText(Integer.toString(getPistolList().get(index).getBody()));
 		text_legs.setText(Integer.toString(getPistolList().get(index).getLeg()));
@@ -212,6 +222,7 @@ public class MainWindow extends JFrame {
 		id.setFont(new Font("VALORANT", Font.PLAIN, 30));
 		
 		text_id = new JTextField();
+		text_id.setEditable(false);
 		text_id.setHorizontalAlignment(SwingConstants.CENTER);
 		text_id.setFont(new Font("Tahoma", Font.PLAIN, 18));
 		labelID.add(text_id);
@@ -381,9 +392,9 @@ public class MainWindow extends JFrame {
 						addField.setString(8, text_legs.getText());
 						InputStream img = new FileInputStream(new File(ImgPath));
 						addField.setBlob(9, img);
+						JOptionPane.showMessageDialog(null, "Produto Adicionado!");
 						addField.executeUpdate();
 						mostrarNaComboBox();
-						JOptionPane.showMessageDialog(null, "Produto Adicionado!");
 					}catch(Exception exception) {
 						exception.printStackTrace();
 					}
@@ -421,7 +432,6 @@ public class MainWindow extends JFrame {
 							ps.setInt(8, Integer.parseInt(text_legs.getText()));
 							ps.setInt(9, Integer.parseInt(text_id.getText()));
 							ps.executeUpdate();
-							mostrarNaComboBox();
 						} catch (SQLException e1) {
 							// TODO Auto-generated catch block
 							e1.printStackTrace();
@@ -441,7 +451,6 @@ public class MainWindow extends JFrame {
 								ps.setBlob(9, img);
 								ps.setInt(10, Integer.parseInt(text_id.getText()));
 								ps.executeUpdate();
-								mostrarNaComboBox();
 							} catch (FileNotFoundException e2) {
 								// TODO Auto-generated catch block
 								e2.printStackTrace();
