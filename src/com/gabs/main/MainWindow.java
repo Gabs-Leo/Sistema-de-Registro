@@ -45,6 +45,7 @@ import java.util.ArrayList;
 import java.awt.event.ActionEvent;
 import javax.swing.ImageIcon;
 import com.gabs.sql.Conexao;
+import com.mysql.cj.x.protobuf.MysqlxNotice.Frame;
 
 public class MainWindow extends JFrame {
 
@@ -61,7 +62,6 @@ public class MainWindow extends JFrame {
 	
 	JLabel Lbl_image = new JLabel("");
 	JComboBox comboBox = new JComboBox();
-	ArrayList<Pistols> pistolList = new ArrayList<Pistols>();
 	Conexao instrucao = new Conexao();
 	String ImgPath = null;
 	
@@ -121,12 +121,11 @@ public class MainWindow extends JFrame {
 	
 	//Instanciando e colocando em array os elementos do banco de dados.
 	public ArrayList<Pistols> getPistolList(){
-		
-		Connection cn = getConnection();
+		ArrayList<Pistols> pistolList = new ArrayList<Pistols>();
 		try {
+			Connection cn = getConnection();
 			Statement st = cn.createStatement();
 			ResultSet rs = st.executeQuery(instrucao.loadObjects());
-
 			while(rs.next()) {
 				Pistols pistol = new Pistols(rs.getInt("id"), rs.getString("name"), rs.getInt("price"), rs.getString("wall_penetration"), rs.getInt("balas_por_paint"), rs.getInt("balas_reserva"), rs.getInt("head"), rs.getInt("body"), rs.getInt("leg"), rs.getBytes("image"));
 				pistolList.add(pistol);
@@ -156,16 +155,18 @@ public class MainWindow extends JFrame {
 	
 	//Preenchendo a tabela com os dados
 	public void showItem(int index) {
-		text_id.setText(Integer.toString(getPistolList().get(index).getId()));
-		text_name.setText(getPistolList().get(index).getName());
-		text_price.setText(Integer.toString(getPistolList().get(index).getPrice()));
-		text_penetration.setText(getPistolList().get(index).getWallPenetration());
-		text_bulletPP.setText(Integer.toString(getPistolList().get(index).getBalasPorPaint()));
-		text_totalBullet.setText(Integer.toString(getPistolList().get(index).getBalasReserva()));
-		text_head.setText(Integer.toString(getPistolList().get(index).getHead()));
-		text_body.setText(Integer.toString(getPistolList().get(index).getBody()));
-		text_legs.setText(Integer.toString(getPistolList().get(index).getLeg()));
-		Lbl_image.setIcon(resizeImage(null, getPistolList().get(index).getImage()));
+		if(index > -1) {
+			text_id.setText(Integer.toString(getPistolList().get(index).getId()));
+			text_name.setText(getPistolList().get(index).getName());
+			text_price.setText(Integer.toString(getPistolList().get(index).getPrice()));
+			text_penetration.setText(getPistolList().get(index).getWallPenetration());
+			text_bulletPP.setText(Integer.toString(getPistolList().get(index).getBalasPorPaint()));
+			text_totalBullet.setText(Integer.toString(getPistolList().get(index).getBalasReserva()));
+			text_head.setText(Integer.toString(getPistolList().get(index).getHead()));
+			text_body.setText(Integer.toString(getPistolList().get(index).getBody()));
+			text_legs.setText(Integer.toString(getPistolList().get(index).getLeg()));
+			Lbl_image.setIcon(resizeImage(null, getPistolList().get(index).getImage()));
+		}
 	}
 	
 	//PSVM
@@ -176,6 +177,7 @@ public class MainWindow extends JFrame {
 					MainWindow frame = new MainWindow();
 					frame.setTitle("Valorant Pistols");
 					frame.setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/com/gabs/icons/icon.png")));
+					frame.setResizable(false);
 					frame.setVisible(true);
 					
 				} catch (Exception e) {
@@ -521,8 +523,6 @@ public class MainWindow extends JFrame {
 		});
 		Btn_Select_Image.setBounds(7, 383, 395, 52);
 		panel.add(Btn_Select_Image);
-		
-		
 	}
 
 }
